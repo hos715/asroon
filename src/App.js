@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
+import IconEdit from "./icons/IconEdit";
+import IconPlus from "./icons/IconPlus";
+import IconTrash from "./icons/IconTrash";
+
 const App = () => {
   const [fullname, setFullname] = useState("");
   const [phoneNumber, setPhoneNumber] = useState(0);
@@ -50,6 +54,21 @@ const App = () => {
       setUsers(allUsers);
       clearInputs();
     }
+  };
+  const handleEditUser = (userId) => {
+    const allusers = [...users];
+    const userIndex = allusers.findIndex((user) => user.id === userId);
+    const thisUser = allusers[userIndex];
+    setFullname(thisUser.fullname);
+    setPhoneNumber(thisUser.phoneNumber);
+    setAge(thisUser.age);
+    setEmail(thisUser.email);
+    setUserIndex(userIndex);
+  };
+  const handleDeleteUser = (userId) => {
+    const allUsers = [...users];
+    const filteredUsers = allUsers.filter((user) => user.id !== userId);
+    setUsers(filteredUsers);
   };
   return (
     <>
@@ -125,6 +144,63 @@ const App = () => {
               />
             </form>
 
+            <div className="c-app__col">
+              <div className="c-users">
+                <div className="c-users__col--head">
+                  <h1 className="c-users__title">داده ها</h1>
+                  <div className="c-user__buttons">
+                    <button className="c-btn c-btn__primry--outline">
+                      دریافت اطلاعات از سرور
+                    </button>
+                    <button className="c-btn c-btn__primry has-icon" onClick={()=>clearInputs()}>
+                      <IconPlus />
+                      ساخت اکانت جدید
+                    </button>
+                  </div>
+                </div>
+                {users.length > 0 ? (
+                  <table className="c-users__table">
+                    <thead>
+                      <tr>
+                        <th>نام و نام خانوادگی</th>
+                        <th>شماره موبایل</th>
+                        <th>سن</th>
+                        <th>ایمیل</th>
+                        <th>تاریخ ایجاد</th>
+                        <th> </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user) => (
+                        <tr key={user.id}>
+                          <td>{user.fullname}</td>
+                          <td>{user.phoneNumber}</td>
+                          <td>{user.age}</td>
+                          <td>{user.email}</td>
+                          <td>1400,07,23</td>
+                          <td>
+                            <button
+                              className="c-icon-btn c-users__edit-user"
+                              onClick={() => handleEditUser(user.id)}
+                            >
+                              <IconEdit />
+                            </button>
+                            <button
+                              className="c-icon-btn c-users__delete-user"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              <IconTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <h1>هیچ کاربری برای نمایش وجود ندارد</h1>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
