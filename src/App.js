@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
+import ModalDialog from "./component/ModalDialog";
 import UserForm from "./component/userForm";
-import UsersTable from "./component/UsersTable";
+import Users from "./component/Users";
 
-import IconPlus from "./icons/IconPlus";
+import IconClose from "./icons/IconClose";
 
 const App = () => {
   const [fullname, setFullname] = useState("");
@@ -13,6 +14,7 @@ const App = () => {
   const [age, setAge] = useState(0);
   const [email, setEmail] = useState("");
   const [userIndex, setUserIndex] = useState(-1);
+  const [openModal, setOpenModal] = useState(false);
 
   const [users, setUsers] = useState(initialState);
 
@@ -56,20 +58,33 @@ const App = () => {
       clearInputs();
     }
   };
+  const getUserIndex = (userId) => {
+    const allusers = [...users];
+    const userIndex = allusers.findIndex((user) => user.id === userId);
+    setUserIndex(userIndex);
+    setOpenModal(true);
+  };
   const handleEditUser = (userId) => {
     const allusers = [...users];
     const userIndex = allusers.findIndex((user) => user.id === userId);
+    setUserIndex(userIndex);
     const thisUser = allusers[userIndex];
     setFullname(thisUser.fullname);
     setPhoneNumber(thisUser.phoneNumber);
     setAge(thisUser.age);
     setEmail(thisUser.email);
-    setUserIndex(userIndex);
   };
-  const handleDeleteUser = (userId) => {
+  const cancelDeleteUser = () => {
+    setOpenModal(false);
+    setUserIndex(-1);
+  };
+  const handleDeleteUser = () => {
     const allUsers = [...users];
-    const filteredUsers = allUsers.filter((user) => user.id !== userId);
-    setUsers(filteredUsers);
+    console.log("allUsers: ", allUsers);
+    allUsers.splice(userIndex, 1);
+    console.log("allUsers: ", allUsers);
+    setUsers(allUsers);
+    setOpenModal(false);
   };
   return (
     <>
@@ -95,40 +110,23 @@ const App = () => {
               setAge={setAge}
               email={email}
               setEmail={setEmail}
-              userIndex={userIndex}
             />
 
-            <div className="c-app__col">
-              <div className="c-users">
-                <div className="c-users__col--head">
-                  <h1 className="c-users__title">داده ها</h1>
-                  <div className="c-user__buttons">
-                    <button className="c-btn c-btn__primry--outline">
-                      دریافت اطلاعات از سرور
-                    </button>
-                    <button
-                      className="c-btn c-btn__primry has-icon"
-                      onClick={() => clearInputs()}
-                    >
-                      <IconPlus />
-                      ساخت اکانت جدید
-                    </button>
-                  </div>
-                </div>
-                {users.length > 0 ? (
-                  <UsersTable
-                    handleDeleteUser={handleDeleteUser}
-                    handleEditUser={handleEditUser}
-                    users={users}
-                  />
-                ) : (
-                  <h1>هیچ کاربری برای نمایش وجود ندارد</h1>
-                )}
-              </div>
-            </div>
+            <Users
+              clearInputs={clearInputs}
+              users={users}
+              getUserIndex={getUserIndex}
+              handleEditUser={handleEditUser}
+            />
           </div>
         </div>
       </div>
+      <ModalDialog
+        openModal={openModal}
+        cancelDeleteUser={cancelDeleteUser}
+        IconClose={IconClose}
+        handleDeleteUser={handleDeleteUser}
+      />
       <ToastContainer />
     </>
   );

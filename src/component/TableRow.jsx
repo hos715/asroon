@@ -3,7 +3,7 @@ import React from "react";
 import IconEdit from "../icons/IconEdit";
 import IconTrash from "../icons/IconTrash";
 
-const TableRow = ({ users, handleEditUser, handleDeleteUser }) => {
+const TableRow = ({ users, handleEditUser, getUserIndex }) => {
   return (
     <>
       {users.map((user) => (
@@ -22,7 +22,7 @@ const TableRow = ({ users, handleEditUser, handleDeleteUser }) => {
             </button>
             <button
               className="c-icon-btn c-users__delete-user"
-              onClick={() => handleDeleteUser(user.id)}
+              onClick={() => getUserIndex(user.id)}
             >
               <IconTrash />
             </button>
