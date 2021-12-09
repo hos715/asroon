@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
-import IconEdit from "./icons/IconEdit";
+import UserForm from "./component/userForm";
+import UsersTable from "./component/UsersTable";
+
 import IconPlus from "./icons/IconPlus";
-import IconTrash from "./icons/IconTrash";
 
 const App = () => {
   const [fullname, setFullname] = useState("");
@@ -75,7 +76,6 @@ const App = () => {
       <div className="c-app">
         <div className="c-app__wrapper">
           <div className="c-app__col">
-            
             <img
               className="c-app--image"
               src="logo.png"
@@ -84,65 +84,19 @@ const App = () => {
               alt="logo"
             />
 
-            <form className="c-form" onSubmit={(e) => handleSubmitForm(e)}>
-              <h1 className="c-form__title">{userIndex === -1 ? ("فرم زیر را پرکنید"):("ویرایش")}</h1>
-
-              <label className="c-form__label">
-                نام و نام خانوادگی
-                <input
-                  className="c-form__input"
-                  type="text"
-                  placeholder="نام و نام خانوادگی"
-                  value={fullname}
-                  onChange={(e) => setFullname(e.target.value)}
-                  required
-                />
-              </label>
-
-              <label className="c-form__label">
-                شماره موبایل
-                <input
-                  className="c-form__input"
-                  type="number"
-                  placeholder="شماره موبایل"
-                  maxLength="14"
-                  value={phoneNumber > 0 ? phoneNumber : ""}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  required
-                />
-              </label>
-
-              <label className="c-form__label">
-                سن
-                <input
-                  className="c-form__input"
-                  type="number"
-                  placeholder="سن"
-                  min="1"
-                  max="200"
-                  value={age > 0 ? age : ""}
-                  onChange={(e) => setAge(e.target.value)}
-                  required
-                />
-              </label>
-
-              <label className="c-form__label">
-                ایمیل
-                <input
-                  className="c-form__input"
-                  type="email"
-                  placeholder="ایمیل"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </label>
-              <input
-                type="submit"
-                className="c-form__btn--submit"
-                value={userIndex === -1 ? ("ساخت اکانت"):("ثبت اطلاعات")}
-              />
-            </form>
+            <UserForm
+              handleSubmitForm={handleSubmitForm}
+              userIndex={userIndex}
+              fullname={fullname}
+              setFullname={setFullname}
+              phoneNumber={phoneNumber}
+              setPhoneNumber={setPhoneNumber}
+              age={age}
+              setAge={setAge}
+              email={email}
+              setEmail={setEmail}
+              userIndex={userIndex}
+            />
 
             <div className="c-app__col">
               <div className="c-users">
@@ -152,50 +106,21 @@ const App = () => {
                     <button className="c-btn c-btn__primry--outline">
                       دریافت اطلاعات از سرور
                     </button>
-                    <button className="c-btn c-btn__primry has-icon" onClick={()=>clearInputs()}>
+                    <button
+                      className="c-btn c-btn__primry has-icon"
+                      onClick={() => clearInputs()}
+                    >
                       <IconPlus />
                       ساخت اکانت جدید
                     </button>
                   </div>
                 </div>
                 {users.length > 0 ? (
-                  <table className="c-users__table">
-                    <thead>
-                      <tr>
-                        <th>نام و نام خانوادگی</th>
-                        <th>شماره موبایل</th>
-                        <th>سن</th>
-                        <th>ایمیل</th>
-                        <th>تاریخ ایجاد</th>
-                        <th> </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user) => (
-                        <tr key={user.id}>
-                          <td>{user.fullname}</td>
-                          <td>{user.phoneNumber}</td>
-                          <td>{user.age}</td>
-                          <td>{user.email}</td>
-                          <td>1400,07,23</td>
-                          <td>
-                            <button
-                              className="c-icon-btn c-users__edit-user"
-                              onClick={() => handleEditUser(user.id)}
-                            >
-                              <IconEdit />
-                            </button>
-                            <button
-                              className="c-icon-btn c-users__delete-user"
-                              onClick={() => handleDeleteUser(user.id)}
-                            >
-                              <IconTrash />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <UsersTable
+                    handleDeleteUser={handleDeleteUser}
+                    handleEditUser={handleEditUser}
+                    users={users}
+                  />
                 ) : (
                   <h1>هیچ کاربری برای نمایش وجود ندارد</h1>
                 )}
