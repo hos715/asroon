@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import React, { useEffect, useState } from "react";
+import { Route, Routes, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 import ModalDialog from "./component/ModalDialog";
@@ -7,8 +8,11 @@ import UserForm from "./component/userForm";
 import Users from "./component/Users";
 
 import IconClose from "./icons/IconClose";
+import MainLayout from "./layout/MainLayout";
 
 const App = () => {
+  const navigate = useNavigate();
+
   const [fullname, setFullname] = useState("");
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [age, setAge] = useState(0);
@@ -17,6 +21,15 @@ const App = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const [users, setUsers] = useState(initialState);
+
+  useEffect(() => {
+    const checkUsers = () => {
+      if (users.length > 0) {
+        navigate("/form");
+      }
+    };
+    checkUsers();
+  }, []);
 
   const clearInputs = () => {
     setFullname("");
@@ -44,6 +57,8 @@ const App = () => {
       allUsers[userIndex] = filterUser;
       setUsers(allUsers);
       clearInputs();
+      navigate("/form");
+      toast.success("ویرایش با موفقیت انجام شد.");
     } else {
       const allUsers = [...users];
       const newUser = {
@@ -56,6 +71,8 @@ const App = () => {
       allUsers.push(newUser);
       setUsers(allUsers);
       clearInputs();
+      toast.success("کاربر جدید با موفقیت اضافه شد..");
+      navigate("/form");
     }
   };
   const getUserIndex = (userId) => {
@@ -65,6 +82,7 @@ const App = () => {
     setOpenModal(true);
   };
   const handleEditUser = (userId) => {
+    navigate("/");
     const allusers = [...users];
     const userIndex = allusers.findIndex((user) => user.id === userId);
     setUserIndex(userIndex);
@@ -76,58 +94,64 @@ const App = () => {
   };
   const cancelDeleteUser = () => {
     setOpenModal(false);
-    setUserIndex(-1);
+    clearInputs();
+    toast.success("حذف سطر مورد نظر لغو شد.");
   };
   const handleDeleteUser = () => {
     const allUsers = [...users];
-    console.log("allUsers: ", allUsers);
     allUsers.splice(userIndex, 1);
-    console.log("allUsers: ", allUsers);
     setUsers(allUsers);
     setOpenModal(false);
+    clearInputs();
+    toast.success("سطر مورد نظر با موفقیت حذف شد.");
+    if (allUsers.length === 0) {
+      toast.warn(
+        "هیج سطری جهت نمایش وجود ندارد، به صفحه ثبت کاربر جدید منتقل میشوید."
+      );
+      navigate("/");
+    }
   };
   return (
     <>
-      <div className="c-app">
-        <div className="c-app__wrapper">
-          <div className="c-app__col">
-            <img
-              className="c-app--image"
-              src="logo.png"
-              width="125"
-              height="132"
-              alt="logo"
-            />
+      <MainLayout>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <UserForm
+                handleSubmitForm={handleSubmitForm}
+                userIndex={userIndex}
+                fullname={fullname}
+                setFullname={setFullname}
+                phoneNumber={phoneNumber}
+                setPhoneNumber={setPhoneNumber}
+                age={age}
+                setAge={setAge}
+                email={email}
+                setEmail={setEmail}
+              />
+            }
+          />
+          <Route
+            path="/form"
+            element={
+              <Users
+                clearInputs={clearInputs}
+                users={users}
+                getUserIndex={getUserIndex}
+                handleEditUser={handleEditUser}
+              />
+            }
+          />
+        </Routes>
+      </MainLayout>
 
-            <UserForm
-              handleSubmitForm={handleSubmitForm}
-              userIndex={userIndex}
-              fullname={fullname}
-              setFullname={setFullname}
-              phoneNumber={phoneNumber}
-              setPhoneNumber={setPhoneNumber}
-              age={age}
-              setAge={setAge}
-              email={email}
-              setEmail={setEmail}
-            />
-
-            <Users
-              clearInputs={clearInputs}
-              users={users}
-              getUserIndex={getUserIndex}
-              handleEditUser={handleEditUser}
-            />
-          </div>
-        </div>
-      </div>
       <ModalDialog
         openModal={openModal}
         cancelDeleteUser={cancelDeleteUser}
         IconClose={IconClose}
         handleDeleteUser={handleDeleteUser}
       />
-      <ToastContainer />
     </>
   );
 };

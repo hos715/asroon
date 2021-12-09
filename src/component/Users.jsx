@@ -3,6 +3,7 @@ import React from "react";
 import UsersTable from "./UsersTable";
 
 import IconPlus from "../icons/IconPlus";
+import { Link } from "react-router-dom";
 
 const Users = ({ clearInputs, users, handleEditUser, getUserIndex }) => {
   return (
@@ -14,13 +15,13 @@ const Users = ({ clearInputs, users, handleEditUser, getUserIndex }) => {
             <button className="c-btn c-btn__primary--outline">
               دریافت اطلاعات از سرور
             </button>
-            <button
+            <Link to="/"
               className="c-btn c-btn__primary has-icon"
               onClick={() => clearInputs()}
             >
               <IconPlus />
               ساخت اکانت جدید
-            </button>
+            </Link>
           </div>
         </div>
         {users.length > 0 ? (
