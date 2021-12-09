@@ -7,21 +7,19 @@ const App = () => {
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [age, setAge] = useState(0);
   const [email, setEmail] = useState("");
+  const [userIndex, setUserIndex] = useState(-1);
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(initialState);
 
   const clearInputs = () => {
     setFullname("");
     setPhoneNumber(0);
     setAge(0);
     setEmail("");
-  };
-
-  const getStates = () => {
-    console.log(users);
+    setUserIndex(-1);
   };
   const handleSubmitForm = (event) => {
-      console.log(phoneNumber);
+    console.log(phoneNumber);
     event.preventDefault();
     if (phoneNumber > 999999999999) {
       toast.warn(
@@ -29,6 +27,16 @@ const App = () => {
       );
     } else if (age > 200 && age < 1) {
       toast.warn("لطفا سن کاربر را دوباره بررسی نمایید");
+    } else if (userIndex >= 0) {
+      const allUsers = [...users];
+      const filterUser = allUsers[userIndex];
+      filterUser.fullname = fullname;
+      filterUser.phoneNumber = phoneNumber;
+      filterUser.age = age;
+      filterUser.email = email;
+      allUsers[userIndex] = filterUser;
+      setUsers(allUsers);
+      clearInputs();
     } else {
       const allUsers = [...users];
       const newUser = {
@@ -38,9 +46,7 @@ const App = () => {
         age,
         email,
       };
-      console.log(newUser);
       allUsers.push(newUser);
-
       setUsers(allUsers);
       clearInputs();
     }
@@ -50,6 +56,7 @@ const App = () => {
       <div className="c-app">
         <div className="c-app__wrapper">
           <div className="c-app__col">
+            
             <img
               className="c-app--image"
               src="logo.png"
@@ -57,8 +64,9 @@ const App = () => {
               height="132"
               alt="logo"
             />
+
             <form className="c-form" onSubmit={(e) => handleSubmitForm(e)}>
-              <h1 className="c-form__title">فرم زیر را پرکنید</h1>
+              <h1 className="c-form__title">{userIndex === -1 ? ("فرم زیر را پرکنید"):("ویرایش")}</h1>
 
               <label className="c-form__label">
                 نام و نام خانوادگی
@@ -113,12 +121,10 @@ const App = () => {
               <input
                 type="submit"
                 className="c-form__btn--submit"
-                value="ثبت اطلاعات"
+                value={userIndex === -1 ? ("ساخت اکانت"):("ثبت اطلاعات")}
               />
             </form>
-            <button className="ass" onClick={getStates}>
-              getState
-            </button>
+
           </div>
         </div>
       </div>
@@ -128,3 +134,13 @@ const App = () => {
 };
 
 export default App;
+
+var initialState = [
+  {
+    id: uuidv4(),
+    fullname: "حسین خلیلی",
+    phoneNumber: "09039228802",
+    age: "29",
+    email: "hossein@hos.com",
+  },
+];
