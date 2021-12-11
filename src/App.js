@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import axios from "axios";
 
-import config from "./services/config.json";
+import {
+  deleteUser,
+  getSingleUser,
+  getUsers,
+  registerUser,
+  updateUser,
+} from "./services/userServices";
 
 import ModalDialog from "./component/ModalDialog";
 import UserForm from "./component/userForm";
@@ -29,19 +34,16 @@ const App = () => {
     initialStates();
   }, []);
 
-  const initialStates = () => {
-    axios
-      .get(`${config.fakeapi}/users`)
-      .then(({ data, status }) => {
-        if (status === 200) {
-          setUsers(data);
-        }
-        console.log("data: ", data);
-        console.log("status: ", status);
-      })
-      .catch((er) => {
-        console.log(er);
-      });
+  const initialStates = async () => {
+    try {
+      const { status, data } = await getUsers();
+      if (status === 200) {
+        setUsers(data);
+        toast.success('اطلاعت از روی سرور بارگذاری شد')
+      }
+    } catch (er) {
+      console.log(er);
+    }
   };
   const checkUsers = () => {
     if (users.length > 0) {
@@ -56,7 +58,7 @@ const App = () => {
     setEmail("");
     setUserId(-1);
   };
-  const handleSubmitForm = (event) => {
+  const handleSubmitForm = async (event) => {
     event.preventDefault();
 
     if (phoneNumber > 999999999999) {
@@ -66,28 +68,25 @@ const App = () => {
     } else if (age > 200 && age < 1) {
       toast.warn("لطفا سن کاربر را دوباره بررسی نمایید");
     } else if (userId !== -1) {
-      const updateUser = {
+      const user = {
         fullname,
         phoneNumber,
         age,
         email,
       };
-      axios
-        .put(`${config.fakeapi}/users/${userId}`, JSON.stringify(updateUser), {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          console.log(response);
+
+      try {
+        const { status } = await updateUser(userId, user);
+        if (status === 200) {
           clearInputs();
           navigate("/form");
           toast.success("ویرایش با موفقیت انجام شد.");
           initialStates();
-        })
-        .catch((ex) => {
-          console.log(ex);
-        });
+        }
+      } catch (ex) {
+        console.log(ex);
+        toast.error("مشکلی به وجود آمده.");
+      }
     } else {
       const newUser = {
         fullname,
@@ -95,25 +94,19 @@ const App = () => {
         age,
         email,
       };
-      axios
-        .post(`${config.fakeapi}/users`, JSON.stringify(newUser), {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then(({ status, data }) => {
-          console.log(status);
-          if (status === 201) {
-            toast.success(`کاربری جدید (${data.fullname}) با موفقیت اضافه شد`);
-            clearInputs();
-            navigate("/form");
-            initialStates();
-          }
-        })
-        .catch((ex) => {
-          console.log(ex);
-          toast.error("برای افزودن کاربر جدید، مشکلی پیش آمده.");
-        });
+
+      try {
+        const { status, data } = await registerUser(newUser);
+        if (status === 201) {
+          toast.success(`کاربر جدید (${data.fullname}) با موفقیت اضافه شد`);
+          clearInputs();
+          navigate("/form");
+          initialStates();
+        }
+      } catch (ex) {
+        console.log(ex);
+        toast.error("برای افزودن کاربر جدید، مشکلی پیش آمده.");
+      }
     }
   };
   const getUserId = (selectedId) => {
@@ -121,33 +114,35 @@ const App = () => {
     setUserId(selectedId);
     setOpenModal(true);
   };
-  const handleEditUser = (selectedId) => {
-    axios
-      .get(`${config.fakeapi}/users/${selectedId}`)
-      .then(({ status, data }) => {
-        if (status === 200) {
-          setFullname(data.fullname);
-          setPhoneNumber(data.phoneNumber);
-          setAge(data.age);
-          setEmail(data.email);
-          setUserId(data.id);
-          navigate("/");
-          toast.success("اطالاعات کاربر انتخاب شده جهت ویرایش بارگیری شد.");
-        }
-      })
-      .catch((ex) => console.log(ex));
+  const handleEditUser = async (selectedId) => {
+    try {
+      const { status, data } = await getSingleUser(selectedId);
+      if (status === 200) {
+        setFullname(data.fullname);
+        setPhoneNumber(data.phoneNumber);
+        setAge(data.age);
+        setEmail(data.email);
+        setUserId(data.id);
+        navigate("/");
+        toast.success("اطالاعات کاربر انتخاب شده جهت ویرایش بارگیری شد.");
+      }
+    } catch (ex) {
+      toast.error(
+        `در بارگیری سطر اتخاب شده مشکلی به وجود آمده دوباره تلاش کنید`
+      );
+      console.log(ex);
+      navigate("/form");
+    }
   };
   const cancelDeleteUser = () => {
     setOpenModal(false);
     clearInputs();
     toast.success("حذف سطر مورد نظر لغو شد.");
   };
-  const handleDeleteUser = () => {
-    console.log(userId);
-    axios
-      .delete(`${config.fakeapi}/users/${userId}`)
-      .then((response) => {
-        console.log(response);
+  const handleDeleteUser = async () => {
+    try {
+      const { status } = await deleteUser(userId);
+      if (status === 200) {
         toast.success("سطر مورد نظر با موفقیت حذف شد.");
         setOpenModal(false);
         clearInputs();
@@ -158,8 +153,11 @@ const App = () => {
           );
           navigate("/");
         }
-      })
-      .catch((ex) => console.log(ex));
+      }
+    } catch (ex) {
+      console.log(ex);
+      toast.error("حذف سطر مورد نظر با مشکل مواجه شد، لطفا دوباره تلاش کنید.");
+    }
   };
   return (
     <>

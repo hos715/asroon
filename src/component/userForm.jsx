@@ -2,7 +2,7 @@ import React from "react";
 
 const UserForm = ({
   handleSubmitForm,
-  userIndex,
+  userId,
   fullname,
   setFullname,
   phoneNumber,
@@ -12,10 +12,11 @@ const UserForm = ({
   email,
   setEmail,
 }) => {
+  console.log('userId: ',userId);
   return (
     <form className="c-form" onSubmit={(e) => handleSubmitForm(e)}>
       <h1 className="c-form__title">
-        {userIndex === -1 ? "فرم زیر را پرکنید" : "ویرایش"}
+        {userId === -1 ? "فرم زیر را پرکنید" : "ویرایش"}
       </h1>
 
       <label className="c-form__label">
@@ -71,7 +72,7 @@ const UserForm = ({
       <input
         type="submit"
         className="c-form__btn--submit"
-        value={userIndex === -1 ? "ساخت اکانت" : "ثبت اطلاعات"}
+        value={userId === -1 ? "ساخت اکانت" : "ثبت اطلاعات"}
       />
     </form>
   );
