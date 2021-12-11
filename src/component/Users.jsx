@@ -5,17 +5,27 @@ import UsersTable from "./UsersTable";
 import IconPlus from "../icons/IconPlus";
 import { Link } from "react-router-dom";
 
-const Users = ({ clearInputs, users, handleEditUser, getUserIndex }) => {
+const Users = ({
+  clearInputs,
+  users,
+  handleEditUser,
+  getUserId,
+  initialStates,
+}) => {
   return (
     <div className="c-app__col">
       <div className="c-users">
         <div className="c-users__col--head">
           <h1 className="c-users__title">داده ها</h1>
           <div className="c-user__buttons">
-            <button className="c-btn c-btn__primary--outline">
+            <button
+              className="c-btn c-btn__primary--outline"
+              onClick={() => initialStates()}
+            >
               دریافت اطلاعات از سرور
             </button>
-            <Link to="/"
+            <Link
+              to="/"
               className="c-btn c-btn__primary has-icon"
               onClick={() => clearInputs()}
             >
@@ -26,7 +36,7 @@ const Users = ({ clearInputs, users, handleEditUser, getUserIndex }) => {
         </div>
         {users.length > 0 ? (
           <UsersTable
-            getUserIndex={getUserIndex}
+            getUserId={getUserId}
             handleEditUser={handleEditUser}
             users={users}
           />

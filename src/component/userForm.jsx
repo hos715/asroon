@@ -34,10 +34,10 @@ const UserForm = ({
         شماره موبایل
         <input
           className="c-form__input"
-          type="number"
+          type="tel"
           placeholder="شماره موبایل"
-          maxLength="14"
-          value={phoneNumber > 0 ? phoneNumber : ""}
+          pattern="[0-9]{11}"
+          value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
           required
         />

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+
+import config from "./services/config.json";
 
 import ModalDialog from "./component/ModalDialog";
 import UserForm from "./component/userForm";
@@ -14,83 +16,126 @@ const App = () => {
   const navigate = useNavigate();
 
   const [fullname, setFullname] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [age, setAge] = useState(0);
   const [email, setEmail] = useState("");
-  const [userIndex, setUserIndex] = useState(-1);
+  const [userId, setUserId] = useState(-1);
   const [openModal, setOpenModal] = useState(false);
 
-  const [users, setUsers] = useState(initialState);
+  const [users, setUsers] = useState({});
 
   useEffect(() => {
-    const checkUsers = () => {
-      if (users.length > 0) {
-        navigate("/form");
-      }
-    };
     checkUsers();
+    initialStates();
   }, []);
+
+  const initialStates = () => {
+    axios
+      .get(`${config.fakeapi}/users`)
+      .then(({ data, status }) => {
+        if (status === 200) {
+          setUsers(data);
+        }
+        console.log("data: ", data);
+        console.log("status: ", status);
+      })
+      .catch((er) => {
+        console.log(er);
+      });
+  };
+  const checkUsers = () => {
+    if (users.length > 0) {
+      navigate("/form");
+    }
+  };
 
   const clearInputs = () => {
     setFullname("");
     setPhoneNumber(0);
     setAge(0);
     setEmail("");
-    setUserIndex(-1);
+    setUserId(-1);
   };
   const handleSubmitForm = (event) => {
-    console.log(phoneNumber);
     event.preventDefault();
+
     if (phoneNumber > 999999999999) {
       toast.warn(
         "لطفا شماره موبایل خود را بررسی نمایید، نباید بیشتر از 14 کاراکتر باشد"
       );
     } else if (age > 200 && age < 1) {
       toast.warn("لطفا سن کاربر را دوباره بررسی نمایید");
-    } else if (userIndex >= 0) {
-      const allUsers = [...users];
-      const filterUser = allUsers[userIndex];
-      filterUser.fullname = fullname;
-      filterUser.phoneNumber = phoneNumber;
-      filterUser.age = age;
-      filterUser.email = email;
-      allUsers[userIndex] = filterUser;
-      setUsers(allUsers);
-      clearInputs();
-      navigate("/form");
-      toast.success("ویرایش با موفقیت انجام شد.");
-    } else {
-      const allUsers = [...users];
-      const newUser = {
-        id: uuidv4(),
+    } else if (userId !== -1) {
+      const updateUser = {
         fullname,
         phoneNumber,
         age,
         email,
       };
-      allUsers.push(newUser);
-      setUsers(allUsers);
-      clearInputs();
-      toast.success("کاربر جدید با موفقیت اضافه شد..");
-      navigate("/form");
+      axios
+        .put(`${config.fakeapi}/users/${userId}`, JSON.stringify(updateUser), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          clearInputs();
+          navigate("/form");
+          toast.success("ویرایش با موفقیت انجام شد.");
+          initialStates();
+        })
+        .catch((ex) => {
+          console.log(ex);
+        });
+    } else {
+      const newUser = {
+        fullname,
+        phoneNumber,
+        age,
+        email,
+      };
+      axios
+        .post(`${config.fakeapi}/users`, JSON.stringify(newUser), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then(({ status, data }) => {
+          console.log(status);
+          if (status === 201) {
+            toast.success(`کاربری جدید (${data.fullname}) با موفقیت اضافه شد`);
+            clearInputs();
+            navigate("/form");
+            initialStates();
+          }
+        })
+        .catch((ex) => {
+          console.log(ex);
+          toast.error("برای افزودن کاربر جدید، مشکلی پیش آمده.");
+        });
     }
   };
-  const getUserIndex = (userId) => {
-    const allusers = [...users];
-    const userIndex = allusers.findIndex((user) => user.id === userId);
-    setUserIndex(userIndex);
+  const getUserId = (selectedId) => {
+    console.log(selectedId);
+    setUserId(selectedId);
     setOpenModal(true);
   };
-  const handleEditUser = (userId) => {
-    navigate("/");
-    const allusers = [...users];
-    const userIndex = allusers.findIndex((user) => user.id === userId);
-    setUserIndex(userIndex);
-    const thisUser = allusers[userIndex];
-    setFullname(thisUser.fullname);
-    setPhoneNumber(thisUser.phoneNumber);
-    setAge(thisUser.age);
-    setEmail(thisUser.email);
+  const handleEditUser = (selectedId) => {
+    axios
+      .get(`${config.fakeapi}/users/${selectedId}`)
+      .then(({ status, data }) => {
+        if (status === 200) {
+          setFullname(data.fullname);
+          setPhoneNumber(data.phoneNumber);
+          setAge(data.age);
+          setEmail(data.email);
+          setUserId(data.id);
+          navigate("/");
+          toast.success("اطالاعات کاربر انتخاب شده جهت ویرایش بارگیری شد.");
+        }
+      })
+      .catch((ex) => console.log(ex));
   };
   const cancelDeleteUser = () => {
     setOpenModal(false);
@@ -98,18 +143,23 @@ const App = () => {
     toast.success("حذف سطر مورد نظر لغو شد.");
   };
   const handleDeleteUser = () => {
-    const allUsers = [...users];
-    allUsers.splice(userIndex, 1);
-    setUsers(allUsers);
-    setOpenModal(false);
-    clearInputs();
-    toast.success("سطر مورد نظر با موفقیت حذف شد.");
-    if (allUsers.length === 0) {
-      toast.warn(
-        "هیج سطری جهت نمایش وجود ندارد، به صفحه ثبت کاربر جدید منتقل میشوید."
-      );
-      navigate("/");
-    }
+    console.log(userId);
+    axios
+      .delete(`${config.fakeapi}/users/${userId}`)
+      .then((response) => {
+        console.log(response);
+        toast.success("سطر مورد نظر با موفقیت حذف شد.");
+        setOpenModal(false);
+        clearInputs();
+        initialStates();
+        if (users.length <= 1) {
+          toast.warn(
+            "هیج سطری جهت نمایش وجود ندارد، به صفحه ثبت کاربر جدید منتقل میشوید."
+          );
+          navigate("/");
+        }
+      })
+      .catch((ex) => console.log(ex));
   };
   return (
     <>
@@ -120,7 +170,7 @@ const App = () => {
             element={
               <UserForm
                 handleSubmitForm={handleSubmitForm}
-                userIndex={userIndex}
+                userId={userId}
                 fullname={fullname}
                 setFullname={setFullname}
                 phoneNumber={phoneNumber}
@@ -136,9 +186,10 @@ const App = () => {
             path="/form"
             element={
               <Users
+                initialStates={initialStates}
                 clearInputs={clearInputs}
                 users={users}
-                getUserIndex={getUserIndex}
+                getUserId={getUserId}
                 handleEditUser={handleEditUser}
               />
             }
@@ -157,13 +208,3 @@ const App = () => {
 };
 
 export default App;
-
-var initialState = [
-  {
-    id: uuidv4(),
-    fullname: "حسین خلیلی",
-    phoneNumber: "09039228802",
-    age: "29",
-    email: "hossein@hos.com",
-  },
-];

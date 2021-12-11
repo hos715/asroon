@@ -3,11 +3,11 @@ import React from "react";
 import IconEdit from "../icons/IconEdit";
 import IconTrash from "../icons/IconTrash";
 
-const TableRow = ({ users, handleEditUser, getUserIndex }) => {
+const TableRow = ({ users, handleEditUser, getUserId }) => {
   return (
     <>
       {users.map((user) => (
-        <tr key={user.id}>
+        <tr key={user.id} id={user.id}>
           <td>{user.fullname}</td>
           <td>{user.phoneNumber}</td>
           <td>{user.age}</td>
@@ -22,7 +22,7 @@ const TableRow = ({ users, handleEditUser, getUserIndex }) => {
             </button>
             <button
               className="c-icon-btn c-users__delete-user"
-              onClick={() => getUserIndex(user.id)}
+              onClick={() => getUserId(user.id)}
             >
               <IconTrash />
             </button>

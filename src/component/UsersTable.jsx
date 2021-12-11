@@ -2,7 +2,7 @@ import React from "react";
 
 import TableRow from "./TableRow";
 
-const UsersTable = ({ users, handleEditUser, getUserIndex }) => {
+const UsersTable = ({ users, handleEditUser, getUserId }) => {
   return (
     <table className="c-users__table">
       <thead>
@@ -19,7 +19,7 @@ const UsersTable = ({ users, handleEditUser, getUserIndex }) => {
         <TableRow
           users={users}
           handleEditUser={handleEditUser}
-          getUserIndex={getUserIndex}
+          getUserId={getUserId}
         />
       </tbody>
     </table>
