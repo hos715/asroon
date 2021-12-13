@@ -1,13 +1,6 @@
 {
   "users": [
     {
-      "fullname": "فاطیما رستمی",
-      "phoneNumber": "09362664406",
-      "age": "28",
-      "email": "fatim@rostami.com",
-      "id": "16e7fd9c-05ed-422c-ac6b-cc5dbad56abb"
-    },
-    {
       "fullname": "حسین خلیلی",
       "phoneNumber": "09039228802",
       "age": "29",
@@ -36,10 +29,10 @@
       "id": "mqZGK1m"
     },
     {
-      "fullname": "هرکول پوآرو",
-      "phoneNumber": "09998887766",
-      "age": "54",
-      "email": "heraclus@po.poo",
+      "fullname": "هرکول پوآ رو",
+      "phoneNumber": "09998887755",
+      "age": "51",
+      "email": "heraclus@po.ir",
       "id": "uEB26eX"
     }
   ]

@@ -1,17 +1,26 @@
-import React from "react";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux"
 
 import UsersTable from "./UsersTable";
 
 import IconPlus from "../icons/IconPlus";
 import { Link } from "react-router-dom";
+import { getAllUsers } from './../stateManagement/actions/users';
+import { Context } from './../stateManagement/context/Context';
 
-const Users = ({
-  clearInputs,
-  users,
-  handleEditUser,
-  getUserId,
-  initialStates,
-}) => {
+
+const Users = () => {
+
+  const dispatch = useDispatch();
+
+  const initUsers = () => {
+    dispatch(getAllUsers());
+  }
+
+  const usersContext = useContext(Context);
+
+  const { clearStates} = usersContext
+
   return (
     <div className="c-app__col">
       <div className="c-users">
@@ -20,29 +29,21 @@ const Users = ({
           <div className="c-user__buttons">
             <button
               className="c-btn c-btn__primary--outline"
-              onClick={() => initialStates()}
+              onClick={() => initUsers()}
             >
               دریافت اطلاعات از سرور
             </button>
             <Link
               to="/"
               className="c-btn c-btn__primary has-icon"
-              onClick={() => clearInputs()}
+              onClick={() => clearStates()}
             >
               <IconPlus />
               ساخت اکانت جدید
             </Link>
           </div>
         </div>
-        {users.length > 0 ? (
-          <UsersTable
-            getUserId={getUserId}
-            handleEditUser={handleEditUser}
-            users={users}
-          />
-        ) : (
-          <h1>هیچ کاربری برای نمایش وجود ندارد</h1>
-        )}
+          <UsersTable />
       </div>
     </div>
   );

@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
+import IconClose from "../icons/IconClose";
+import { Context } from './../stateManagement/context/Context';
 
-const ModalDialog = ({
-  openModal,
-  cancelDeleteUser,
-  IconClose,
-  handleDeleteUser,
-}) => {
+const ModalDialog = () => {
+
+  const modalContext = useContext(Context);
+
+  const {
+    openModal,
+    cancelDeleteUser,
+    handleDeleteUser,
+  } = modalContext;
+
   return (
     <div className={openModal ? "c-modal is-open" : "c-modal"}>
       <div
@@ -23,7 +29,7 @@ const ModalDialog = ({
             className="c-btn c-modal__close"
             onClick={() => cancelDeleteUser()}
           >
-            <IconClose />
+            <IconClose/>
           </button>
         </div>
         <div className="c-modal__content">

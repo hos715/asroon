@@ -1,5 +1,5 @@
 import config from "./config.json";
-import http from "./httpServices";
+import http from "./httpService";
 
 export const getUsers = () => {
   return http.get(`${config.fakeapi}/users`);

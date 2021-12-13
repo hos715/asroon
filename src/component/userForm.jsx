@@ -1,18 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
+import { Context } from './../stateManagement/context/Context';
 
-const UserForm = ({
-  handleSubmitForm,
-  userId,
-  fullname,
-  setFullname,
-  phoneNumber,
-  setPhoneNumber,
-  age,
-  setAge,
-  email,
-  setEmail,
-}) => {
-  console.log('userId: ',userId);
+const UserForm = () => {
+
+
+  const formContext = useContext(Context);
+  const {
+    handleSubmitForm,
+    userId,
+    fullname,
+    setFullname,
+    phoneNumber,
+    setPhoneNumber,
+    age,
+    setAge,
+    email,
+    setEmail,
+  } = formContext;
+
   return (
     <form className="c-form" onSubmit={(e) => handleSubmitForm(e)}>
       <h1 className="c-form__title">
